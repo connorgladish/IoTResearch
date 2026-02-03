@@ -7,7 +7,7 @@
 
 > **Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks**
 >
-> Research presented at the **CYBER-CARE Symposium** at Embry-Riddle Aeronautical University
+> Research to be presented at the **CYBER-CARE Symposium** at Embry-Riddle Aeronautical University
 
 ---
 
