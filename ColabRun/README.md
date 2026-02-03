@@ -1,0 +1,1 @@
+As stated in the README in the root directory disclaimer, this research was completed in Google Colab. The structures may vary. Please make it work for whatever set up you have/need. I will provide the structure and code that I used inside of my Colab Notebook if you wish to copy it 1:1.
