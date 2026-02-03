@@ -173,7 +173,7 @@ xgb_multi = XGBClassifier(
 
 We first evaluated models on **binary classification** (Benign vs. Attack):
 
-![Binary Classification Confusion Matrices](1_binary_confusion_matrices.png)
+![Binary Classification Confusion Matrices](Figures/1_binary_confusion_matrices.png)
 
 #### Analysis
 
@@ -202,7 +202,7 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 ### Model Comparison Tables
 
-![Binary Model Comparison](5_binary_model_comparison.png)
+![Binary Model Comparison](Figures/5_binary_model_comparison.png)
 
 #### Binary Classification Performance
 
@@ -219,7 +219,7 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 ---
 
-![Multi-Class Model Comparison](6_multiclass_model_comparison.png)
+![Multi-Class Model Comparison](Figures/6_multiclass_model_comparison.png)
 
 #### Multi-Class Classification Performance
 
@@ -240,7 +240,7 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 #### Full ROC Curves
 
-![ROC Curves Full](2_roc_curves_full.png)
+![ROC Curves Full](Figures/2_roc_curves_full.png)
 
 **Interpretation**: All curves hug the top-left corner, indicating **near-perfect discrimination** between benign and malicious traffic. The models achieve:
 - **~100% True Positive Rate** (detecting attacks)
@@ -252,7 +252,7 @@ The curves are nearly overlapping because performance is so high (AUC > 0.996 fo
 
 #### Zoomed ROC Curves (Critical Region)
 
-![ROC Curves Zoomed](3_roc_curves_zoomed.png)
+![ROC Curves Zoomed](Figures/3_roc_curves_zoomed.png)
 
 **Key Insights from Zoomed View**:
 
@@ -268,7 +268,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 #### AUC Score Comparison
 
-![AUC Comparison](9_auc_comparison.png)
+![AUC Comparison](Figures/9_auc_comparison.png)
 
 **AUC-ROC Rankings**:
 
@@ -291,7 +291,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 #### Confusion Matrix (11 Attack Types)
 
-![Multi-Class Confusion Matrix](4_multiclass_confusion_matrix.png)
+![Multi-Class Confusion Matrix](Figures/4_multiclass_confusion_matrix.png)
 
 **How to Read This Matrix**:
 - **Rows** = Actual attack type
@@ -327,7 +327,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 ### Per-Class Performance Breakdown
 
-![Per-Class Performance](7_per_class_performance.png)
+![Per-Class Performance](Figures/7_per_class_performance.png)
 
 **Critical Finding - UDP Flood Failure**:
 
@@ -350,7 +350,7 @@ All other attack types show **balanced precision/recall** (bars at ~1.0), indica
 
 ### Feature Importance Analysis
 
-![Feature Importance](8_feature_importance.png)
+![Feature Importance](Figures/8_feature_importance.png)
 
 **Top 10 Most Important Features**:
 
