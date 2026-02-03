@@ -1,0 +1,377 @@
+{
+  "dataset_info": {
+    "dataset_name": "ACI-IoT-2023",
+    "file": "ACI-IoT-2023.csv",
+    "total_samples": 1231406,
+    "used_samples": 500000,
+    "features": 78,
+    "num_classes": 11,
+    "class_names": [
+      "Benign",
+      "DNS Flood",
+      "Dictionary Attack",
+      "ICMP Flood",
+      "OS Scan",
+      "Ping Sweep",
+      "Port Scan",
+      "SYN Flood",
+      "Slowloris",
+      "UDP Flood",
+      "Vulnerability Scan"
+    ],
+    "class_distribution": {
+      "Benign": 329295,
+      "DNS Flood": 46935,
+      "Dictionary Attack": 6380,
+      "ICMP Flood": 225234,
+      "OS Scan": 37524,
+      "Ping Sweep": 71928,
+      "Port Scan": 441282,
+      "SYN Flood": 13857,
+      "Slowloris": 18643,
+      "UDP Flood": 791,
+      "Vulnerability Scan": 39537
+    }
+  },
+  "binary_classification": {
+    "best_model": "Decision Tree",
+    "all_models": {
+      "Decision Tree": {
+        "accuracy": 0.9977333333333334,
+        "precision": 0.9986526346454973,
+        "recall": 0.9982527664531159,
+        "f1_score": 0.9984526605137167,
+        "auc_roc": 0.9968026951733747,
+        "time_min": 0.16864449580510457,
+        "confusion_matrix": {
+          "tn": 19982,
+          "fp": 74,
+          "fn": 96,
+          "tp": 54848
+        }
+      },
+      "Random Forest": {
+        "accuracy": 0.9971733333333334,
+        "precision": 0.9978895276908522,
+        "recall": 0.9982527664531159,
+        "f1_score": 0.9980711140226372,
+        "auc_roc": 0.9998591233422364,
+        "time_min": 0.31111480394999186,
+        "confusion_matrix": {
+          "tn": 19940,
+          "fp": 116,
+          "fn": 96,
+          "tp": 54848
+        }
+      },
+      "XGBoost": {
+        "accuracy": 0.9974133333333334,
+        "precision": 0.9981620323191148,
+        "recall": 0.998307367501456,
+        "f1_score": 0.9982346946203684,
+        "auc_roc": 0.99988429447271,
+        "time_min": 0.15965080658594769,
+        "confusion_matrix": {
+          "tn": 19955,
+          "fp": 101,
+          "fn": 93,
+          "tp": 54851
+        }
+      }
+    }
+  },
+  "multiclass_classification": {
+    "best_model": "Decision Tree",
+    "all_models": {
+      "Decision Tree": {
+        "accuracy": 0.99556,
+        "precision": 0.9954260787088385,
+        "recall": 0.99556,
+        "f1_score": 0.995456245889167,
+        "time_min": 0.11770771741867066
+      },
+      "Random Forest": {
+        "accuracy": 0.99428,
+        "precision": 0.9942319022812566,
+        "recall": 0.99428,
+        "f1_score": 0.9941179921843352,
+        "time_min": 0.31481433709462486
+      },
+      "XGBoost": {
+        "accuracy": 0.9953333333333333,
+        "precision": 0.9953295980761404,
+        "recall": 0.9953333333333333,
+        "f1_score": 0.9951945297904273,
+        "time_min": 0.5854379177093506
+      }
+    },
+    "confusion_matrix": [
+      [
+        20013,
+        4,
+        2,
+        1,
+        1,
+        0,
+        20,
+        0,
+        1,
+        8,
+        6
+      ],
+      [
+        17,
+        2841,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        388,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        13717,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        2284,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        4381,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        29,
+        0,
+        1,
+        0,
+        3,
+        0,
+        26754,
+        0,
+        1,
+        1,
+        88
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        842,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        1133,
+        0,
+        0
+      ],
+      [
+        34,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        14,
+        0
+      ],
+      [
+        7,
+        0,
+        2,
+        0,
+        0,
+        1,
+        98,
+        0,
+        0,
+        0,
+        2300
+      ]
+    ],
+    "per_class_metrics": {
+      "Benign": {
+        "precision": 0.9954735376044568,
+        "recall": 0.997856003191065,
+        "f1-score": 0.9966633466135458,
+        "support": 20056.0
+      },
+      "DNS Flood": {
+        "precision": 0.9985940246045695,
+        "recall": 0.993704092339979,
+        "f1-score": 0.9961430575035063,
+        "support": 2859.0
+      },
+      "Dictionary Attack": {
+        "precision": 0.9872773536895675,
+        "recall": 1.0,
+        "f1-score": 0.9935979513444302,
+        "support": 388.0
+      },
+      "ICMP Flood": {
+        "precision": 0.9999271030762502,
+        "recall": 0.9999271030762502,
+        "f1-score": 0.9999271030762502,
+        "support": 13718.0
+      },
+      "OS Scan": {
+        "precision": 0.9982517482517482,
+        "recall": 0.9991251093613298,
+        "f1-score": 0.9986882378662003,
+        "support": 2286.0
+      },
+      "Ping Sweep": {
+        "precision": 0.9997717937015062,
+        "recall": 1.0,
+        "f1-score": 0.9998858838297386,
+        "support": 4381.0
+      },
+      "Port Scan": {
+        "precision": 0.9955347175708864,
+        "recall": 0.995423596383525,
+        "f1-score": 0.995479153876207,
+        "support": 26877.0
+      },
+      "SYN Flood": {
+        "precision": 1.0,
+        "recall": 0.9976303317535545,
+        "f1-score": 0.9988137603795967,
+        "support": 844.0
+      },
+      "Slowloris": {
+        "precision": 0.9973591549295775,
+        "recall": 0.9982378854625551,
+        "f1-score": 0.9977983267283135,
+        "support": 1135.0
+      },
+      "UDP Flood": {
+        "precision": 0.6086956521739131,
+        "recall": 0.2916666666666667,
+        "f1-score": 0.39436619718309857,
+        "support": 48.0
+      },
+      "Vulnerability Scan": {
+        "precision": 0.9603340292275574,
+        "recall": 0.9551495016611296,
+        "f1-score": 0.9577347491151363,
+        "support": 2408.0
+      },
+      "accuracy": 0.99556,
+      "macro avg": {
+        "precision": 0.9582926468027302,
+        "recall": 0.929883662717823,
+        "f1-score": 0.9390088879560021,
+        "support": 75000.0
+      },
+      "weighted avg": {
+        "precision": 0.9954260787088385,
+        "recall": 0.99556,
+        "f1-score": 0.995456245889167,
+        "support": 75000.0
+      }
+    }
+  },
+  "top_features": [
+    {
+      "feature": "RST Flag Count",
+      "importance": 0.2833622673450382
+    },
+    {
+      "feature": "Fwd Header Length",
+      "importance": 0.2762123021782134
+    },
+    {
+      "feature": "Src Port",
+      "importance": 0.23685001401746197
+    },
+    {
+      "feature": "Bwd Packet Length Max",
+      "importance": 0.052165119100139566
+    },
+    {
+      "feature": "Fwd Packet Length Max",
+      "importance": 0.027640733192544783
+    },
+    {
+      "feature": "Connection Type",
+      "importance": 0.021759485004373035
+    },
+    {
+      "feature": "Fwd Seg Size Min",
+      "importance": 0.019722634672439225
+    },
+    {
+      "feature": "Flow IAT Min",
+      "importance": 0.017383866384634798
+    },
+    {
+      "feature": "Dst IP",
+      "importance": 0.016310373059468114
+    },
+    {
+      "feature": "Dst Port",
+      "importance": 0.011125066298564124
+    }
+  ]
+}
