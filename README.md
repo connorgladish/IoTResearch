@@ -16,7 +16,7 @@
 - [Research Motivation](#-research-motivation)
 - [Dataset](#-dataset)
 - [Methodology](#-methodology)
-- [Models Evaluated](#models-evaluated)
+- [Models Evaluated](#-models-evaluated)
 - [Results](#-results)
   - [Binary Classification](#-binary-classification)
   - [Multi-Class Classification](#-multi-class-classification)
