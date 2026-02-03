@@ -492,3 +492,6 @@ transportation-iot-anomaly-detection/
 ├── README.md                         # This file
 └── LICENSE                           # MIT License
 ```
+## Disclaimer
+
+This research was done utilizing Google Colab, so local downloads were not tested. Therefore, some directory structures that are shown may not work exactly as pictured. Please play around with the structure to make it work for you!
