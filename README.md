@@ -12,7 +12,7 @@
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
+- [Overview](#-overview)
 - [Research Motivation](#research-motivation)
 - [Dataset](#dataset)
 - [Methodology](#methodology)
