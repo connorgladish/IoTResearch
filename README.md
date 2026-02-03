@@ -475,6 +475,12 @@ transportation-iot-anomaly-detection/
 │   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately)
 ├── Results/
 │   └── aci_comprehensive_results_with_knn.json  # Full results
+├── ColabRun/
+│   ├── ColabKaggleGDriveLoad.py
+│   ├── ColabKaggleLink.py
+│   ├── ColabTrainingScript.py
+│   ├── ColabVisualizationGenerator.py
+│   └── README.md
 ├── Figures/
 │   ├── 1_binary_confusion_matrices.png
 │   ├── 2_roc_curves_full.png
@@ -485,9 +491,6 @@ transportation-iot-anomaly-detection/
 │   ├── 7_per_class_performance.png
 │   ├── 8_feature_importance.png
 │   └── 9_auc_comparison.png
-├── train_models.py                   # Main training script
-├── generate_visualizations.py        # Create all figures
-├── evaluate.py                       # Evaluation utilities
 ├── requirements.txt                  # Python dependencies
 ├── README.md                         # This file
 └── LICENSE                           # MIT License
