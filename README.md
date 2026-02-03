@@ -461,8 +461,8 @@ X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/transportation-iot-anomaly-detection.git
-cd transportation-iot-anomaly-detection
+git clone https://github.com/connorgladish/IoTResearch.git
+cd IoTResearch
 
 # Install requirements
 pip install -r requirements.txt
@@ -472,9 +472,10 @@ pip install -r requirements.txt
 ```
 transportation-iot-anomaly-detection/
 ├── data/
-│   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately)
+│   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately via link in repo)
 ├── Results/
-│   └── aci_comprehensive_results_with_knn.json  # Full results
+│   ├── aci_comprehensive_results_with_knn.json  # Full results
+│   └── ac_comprehensive_results.json # Results without KNN
 ├── ColabRun/
 │   ├── ColabKaggleGDriveLoad.py
 │   ├── ColabKaggleLink.py
