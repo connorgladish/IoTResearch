@@ -1,0 +1,2 @@
+# IoTResearch
+Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks. Used for research presented at the CYBER-CARE Symposium at Embry Riddle Aeronautical University.
