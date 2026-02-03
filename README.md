@@ -473,16 +473,9 @@ pip install -r requirements.txt
 transportation-iot-anomaly-detection/
 ├── data/
 │   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately)
-├── models/
-│   ├── xgboost_binary.pkl            # Trained XGBoost (binary)
-│   ├── xgboost_multiclass.pkl        # Trained XGBoost (multi-class)
-│   ├── decision_tree.pkl             # Trained Decision Tree
-│   ├── random_forest.pkl             # Trained Random Forest
-│   ├── knn.pkl                       # Trained KNN
-│   └── scaler.pkl                    # Feature scaler
-├── results/
+├── Results/
 │   └── aci_comprehensive_results_with_knn.json  # Full results
-├── visualizations/
+├── Figures/
 │   ├── 1_binary_confusion_matrices.png
 │   ├── 2_roc_curves_full.png
 │   ├── 3_roc_curves_zoomed.png
