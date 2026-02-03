@@ -20,11 +20,7 @@
 - [Results](#-results)
 - [Key Findings](#-key-findings)
 - [Installation](#-installation)
-- [Usage](#-usage)
-- [Project Structure](#-project-structure)
-- [Citation](#-citation)
-- [Contributors](#-contributors)
-- [License](#-license)
+- [Project Structure](#project-structure)
 
 ---
 
