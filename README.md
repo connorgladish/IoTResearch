@@ -70,7 +70,7 @@ Connected transportation systems face increasing cyber threats:
 - **Total Samples**: 1,231,411 network flows
 - **Features**: 78 numerical/categorical features
 - **Attack Types**: 11 distinct classes
-- **Source**: [Canadian Institute for Cybersecurity](https://www.unb.ca/cic/datasets/iotdataset-2023.html)
+- **Source**: [Army Cyber Institute (ACI)](https://www.kaggle.com/datasets/emilynack/aci-iot-network-traffic-dataset-2023)
 
 #### Class Distribution
 
