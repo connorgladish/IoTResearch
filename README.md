@@ -1,5 +1,4 @@
-# Safeguarding Connected Transportation Systems: A Multi-Class Machine Learning Approach to Network Anomaly Detection
-
+# Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks
 [![Conference](https://img.shields.io/badge/Conference-CYBER--CARE%20Symposium-blue)](https://erau.edu)
 [![Dataset](https://img.shields.io/badge/Dataset-ACI--IoT--2023-green)](https://www.unb.ca/cic/datasets/iotdataset-2023.html)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-brightgreen)](https://python.org)
