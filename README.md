@@ -6,7 +6,7 @@
 
 > **Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks**
 >
-> Research to be presented in tandem with Mollly Corgan at the **CYBER-CARE Symposium** at Embry-Riddle Aeronautical University
+> Research to be presented in tandem with Molly Corgan at the **CYBER-CARE Symposium** at Embry-Riddle Aeronautical University
 
 ---
 
