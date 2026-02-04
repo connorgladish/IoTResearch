@@ -470,7 +470,7 @@ pip install -r requirements.txt
 
 ## Project Structure
 ```
-transportation-iot-anomaly-detection/
+IoTResearch/
 ├── data/
 │   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately via link in repo)
 ├── Results/
