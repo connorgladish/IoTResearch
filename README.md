@@ -49,6 +49,9 @@ Connected transportation systems face increasing cyber threats:
 - **Autonomous Vehicles**: Susceptible to sensor spoofing and network intrusion
 - **Fleet Management Systems**: Risk of data exfiltration and ransomware
 
+![V2V (Vehicle-To-Vehicle)](Figures/v2v.png)
+
+
 **Our Goal**: Develop lightweight, accurate ML models capable of **real-time threat detection** in resource-constrained IoT environments.
 
 ---
