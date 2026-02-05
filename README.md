@@ -10,7 +10,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Research Motivation](#research-motivation)
