@@ -55,11 +55,11 @@ Connected transportation systems face increasing cyber threats:
 
 Demonstration of semantic segmentation attack on autonomous vehicle perception. 
 
-The diagram above illustrates a critical vulnerability in autonomous driving systems:
+The diagram above illustrates a critical vulnerability in autonomous driving systems if the attack is not detected and supressed:
 
-1. **Normal Operation (Top)**: The vehicle's camera captures an urban scene and correctly identifies a pedestrian (red circle) through semantic segmentation. The AI classifies road surface (blue), buildings (purple), traffic signs (yellow), and pedestrians (red), enabling safe navigation decisions.
+1. **Normal Operation (Top)**: The vehicle's camera captures an urban scene and correctly identifies the scene through semantic segmentation. The AI classifies road surface (purple), buildings/non important features (grey), trees (yellow), vehicles (blue), sidewalks (pink), and pedestrians (red), enabling safe navigation decisions.
 
-2. **Under Cyberattack (Bottom)**: An attacker compromises the vehicle's network and injects adversarial noise into the perception pipeline. While the scene appears identical to human observers, the AI's segmentation model **fails catastrophically**—the pedestrian is misclassified as drivable road surface (pink). The vehicle would now accelerate directly toward the pedestrian, believing the path is clear.
+2. **Under Attack (Bottom)**: An attacker compromises the vehicle's network and injects adversarial noise into the perception pipeline. While the scene appears identical to human observers, the AI's segmentation model **fails catastrophically**—the pedestrian is misclassified as drivable road surface (purple). The vehicle would now accelerate directly toward the pedestrian, believing the path is clear.
 
 **This is not theoretical**: Research has demonstrated that adversarial attacks can be executed through:
 - Compromised V2X communication channels
