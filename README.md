@@ -12,19 +12,19 @@
 
 ## 📋 Table of Contents
 
-- [Overview](#-overview)
-- [Research Motivation](#-research-motivation)
-- [Dataset](#-dataset)
-- [Methodology](#-methodology)
-- [Models Evaluated](#-models-evaluated)
-- [Results](#-results)
-- [Key Findings](#-key-findings)
-- [Installation](#-installation)
+- [Overview](#overview)
+- [Research Motivation](#research-motivation)
+- [Dataset](#dataset)
+- [Methodology](#methodology)
+- [Models Evaluated](#models-evaluated)
+- [Results](#results)
+- [Key Findings](#key-findings)
+- [Installation](#installation)
 - [Project Structure](#project-structure)
 
 ---
 
-## 🎯 Overview
+## Overview
 
 This research evaluates **four machine learning algorithms** for detecting cyberattacks in IoT-enabled transportation networks. As connected vehicles, V2V communication, and smart infrastructure become critical to modern transportation, protecting these systems from cyber threats is paramount.
 
@@ -38,7 +38,7 @@ Using the **ACI-IoT-2023 dataset** (1.2M+ samples, 11 attack types), we achieved
 
 ---
 
-## 🚗 Research Motivation
+## Research Motivation
 
 ### Why Transportation Cybersecurity Matters
 
@@ -53,7 +53,7 @@ Connected transportation systems face increasing cyber threats:
 
 ---
 
-## 📊 Dataset
+## Dataset
 
 ### ACI-IoT-2023 Dataset
 
@@ -82,7 +82,7 @@ Connected transportation systems face increasing cyber threats:
 
 ---
 
-## 🔬 Methodology
+## Methodology
 
 ### Data Preprocessing
 
@@ -146,7 +146,7 @@ xgb_multi = XGBClassifier(
     eval_metric='mlogloss'
 )
 ```
-## 🤖 Models Evaluated
+## Models Evaluated
 
 | Model | Type | Strengths | Use Case |
 |-------|------|-----------|----------|
@@ -157,7 +157,7 @@ xgb_multi = XGBClassifier(
 
 ---
 
-## 📈 Results
+## Results
 
 ### Binary Classification
 
@@ -291,7 +291,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 #### Per-Class Results
 
-**✅ Perfect/Near-Perfect Detection** (>99.5% accuracy):
+** Perfect/Near-Perfect Detection** (>99.5% accuracy):
 - **Dictionary Attack**: 388/388 (100%)
 - **Ping Sweep**: 4,381/4,381 (100%)
 - **ICMP Flood**: 13,717/13,718 (99.99%)
@@ -301,14 +301,14 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 - **OS Scan**: 2,284/2,286 (99.91%)
 - **DNS Flood**: 2,841/2,859 (99.37%)
 
-**⚠️ Moderate Performance**:
+** Moderate Performance**:
 - **Port Scan**: 26,754/26,877 (99.54%)
   - 88 misclassified as Vulnerability Scan (similar scanning behavior)
 - **Vulnerability Scan**: 2,300/2,408 (95.52%)
   - 98 misclassified as Port Scan (expected confusion)
 
-**❌ Poor Performance**:
-- **UDP Flood**: 14/48 (29.17%) ⚠️
+** Poor Performance**:
+- **UDP Flood**: 14/48 (29.17%) 
   - **Only 48 test samples** (0.06% of dataset)
   - 34 misclassified as Benign
   - **Root cause**: Severe class imbalance prevented learning
@@ -323,7 +323,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 This chart clearly shows that **UDP Flood** is the only attack type with significantly degraded performance:
 - **Precision**: 0.61 (61%)
-- **Recall**: 0.29 (29%) 🚨
+- **Recall**: 0.29 (29%) 
 - **F1-Score**: 0.39 (39%)
 
 **Why This Happened**:
@@ -389,11 +389,11 @@ Notice that **protocol flags, ports, and packet structures** (Layer 3-4 features
 
 ---
 
-## 🔑 Key Findings
+## Key Findings
 
 ### 1. All Models Are Deployment-Ready
 
-✅ **All four models achieved >99.5% accuracy**, demonstrating that IoT anomaly detection is a **solved problem** for balanced datasets with sufficient samples.
+**All four models achieved >99.5% accuracy**, demonstrating that IoT anomaly detection is a **solved problem** for balanced datasets with sufficient samples.
 
 ### 2. XGBoost is Optimal for Production
 
@@ -450,7 +450,7 @@ X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
 ---
 
-## 💻 Installation
+## Installation
 
 ### Prerequisites
 
