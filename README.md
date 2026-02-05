@@ -23,7 +23,7 @@
 - [Project Structure](#project-structure)
 
 ---
-
+![V2V (Vehicle-To-Vehicle)](Figures/v2v.png)
 ## Overview
 
 This research evaluates **four machine learning algorithms** for detecting cyberattacks in IoT-enabled transportation networks. As connected vehicles, V2V communication, and smart infrastructure become critical to modern transportation, protecting these systems from cyber threats is paramount.
@@ -49,8 +49,23 @@ Connected transportation systems face increasing cyber threats:
 - **Autonomous Vehicles**: Susceptible to sensor spoofing and network intrusion
 - **Fleet Management Systems**: Risk of data exfiltration and ransomware
 
-![V2V (Vehicle-To-Vehicle)](Figures/v2v.png)
+### Real-World Attack Example: Adversarial Perception Manipulation
 
+![Adversarial Attack on Autonomous Vehicle](Figures/attackexample.png)
+
+Demonstration of semantic segmentation attack on autonomous vehicle perception. 
+
+The diagram above illustrates a critical vulnerability in autonomous driving systems:
+
+1. **Normal Operation (Top)**: The vehicle's camera captures an urban scene and correctly identifies a pedestrian (red circle) through semantic segmentation. The AI classifies road surface (blue), buildings (purple), traffic signs (yellow), and pedestrians (red), enabling safe navigation decisions.
+
+2. **Under Cyberattack (Bottom)**: An attacker compromises the vehicle's network and injects adversarial noise into the perception pipeline. While the scene appears identical to human observers, the AI's segmentation model **fails catastrophically**—the pedestrian is misclassified as drivable road surface (pink). The vehicle would now accelerate directly toward the pedestrian, believing the path is clear.
+
+**This is not theoretical**: Research has demonstrated that adversarial attacks can be executed through:
+- Compromised V2X communication channels
+- Malicious Over-The-Air (OTA) updates
+- Physical adversarial patches on road signs
+- GPS spoofing combined with camera manipulation
 
 **Our Goal**: Develop lightweight, accurate ML models capable of **real-time threat detection** in resource-constrained IoT environments.
 
