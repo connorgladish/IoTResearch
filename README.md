@@ -331,9 +331,6 @@ This chart clearly shows that **UDP Flood** is the only attack type with signifi
 2. After sampling, only **48 test samples** remained
 3. Model never learned distinguishing features
 
-**Implications for Deployment**:
-> "While the model achieved >99% F1-score for 10 out of 11 attack types, UDP Flood detection requires additional data collection or synthetic oversampling (SMOTE) before operational deployment."
-
 All other attack types show **balanced precision/recall** (bars at ~1.0), indicating reliable detection without bias.
 
 ---
