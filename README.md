@@ -242,6 +242,8 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 **Why?**: Multi-class problems with **distinct class boundaries** favor simpler models that can create clear decision splits. Ensemble voting can sometimes blur boundaries between similar attack types (e.g., Port Scan vs. Vulnerability Scan).
 
+![Multi-Classn Confusion Matrices](Figures/4_multiclass_confusion_matrices.png)
+
 ---
 
 ### ROC-AUC Analysis
