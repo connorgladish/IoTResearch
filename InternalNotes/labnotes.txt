@@ -1,6 +1,8 @@
+Notes starting 2/05/2026
+
 1.) The data may be overfitting because the accuracy is too high. Look into this to prove otherwise. **Important**
-2.) Make the binary confusion matrix have percentages not raw numbers. 
-3.) The class confusion matrix needs to be shown for each algorithm. 
+**COMPLETE** 2.) Make the binary confusion matrix have percentages not raw numbers. **COMPLETE**
+**COMPLETE** 3.) The class confusion matrix needs to be shown for each algorithm. **COMPLETE**
 4.) Make sure to show the training steps in detail in the README for AUC ROC curve. **Important**
 
 /**Everything needs to be submitted to conference by mid March.**/
