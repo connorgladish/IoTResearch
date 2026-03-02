@@ -1,10 +1,10 @@
-# Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks
+# Machine Learning-Based Anomaly Detection for Traffic in IoT-Enabled Transportation Networks
 [![Conference](https://img.shields.io/badge/Conference-CYBER--CARE%20Symposium-blue)](https://erau.edu)
 [![Dataset](https://img.shields.io/badge/Dataset-ACI--IoT--2023-green)](https://www.unb.ca/cic/datasets/iotdataset-2023.html)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-brightgreen)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Comparative Analysis of Machine Learning Classifiers for Multi-Class Attack Detection in IoT Transportation Networks**
+> **Machine Learning-Based Anomaly Detection for Traffic in IoT-Enabled Transportation Networks**
 >
 > Research to be presented in tandem with Molly Corgan at the **CYBER-CARE Symposium** at Embry-Riddle Aeronautical University
 
