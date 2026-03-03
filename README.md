@@ -301,7 +301,7 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 #### Confusion Matrix (11 Attack Types)
 
-![Multi-Class Confusion Matrix](Figures/4_multiclass_confusion_matrix.png)
+![Multi-Class Confusion Matrix](Figures/4_multiclass_confusion_matrices.png)
 
 **How to Read This Matrix**:
 - **Rows** = Actual attack type
