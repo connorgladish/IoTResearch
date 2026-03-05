@@ -241,7 +241,7 @@ model.fit(
 
 We first evaluated all five models on **binary classification** (Benign vs. Attack):
 
-![Binary Classification Confusion Matrices](Figures/1_binary_confusion_matrices.png)
+![Binary Classification Confusion Matrices](Figures/1_binary_confusion_matricesNEW.png)
 
 #### Analysis
 
