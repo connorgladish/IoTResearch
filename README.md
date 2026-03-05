@@ -299,7 +299,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 
 **Why?** Multi-class problems with **distinct class boundaries** favor simpler models that create clean decision splits. Ensemble voting can blur boundaries between similar attack types (e.g., Port Scan vs. Vulnerability Scan), and the CNN's convolutional inductive bias is less effective when discriminating features are not spatially local in the feature vector.
 
-![Multi-Class Confusion Matrices](Figures/4_multiclass_confusion_matrices.png)
+![Multi-Class Confusion Matrices](Figures/4_multiclass_confusion_matricesNEW.png)
 
 ---
 
