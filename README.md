@@ -15,7 +15,7 @@
 - [Overview](#overview)
 - [Research Motivation](#research-motivation)
 - [Dataset](#dataset)
-- [Methodology](#methodology)
+- [Training Pipeline](#training-pipeline)
 - [Models Evaluated](#models-evaluated)
 - [Results](#results)
 - [Key Findings](#key-findings)
@@ -26,15 +26,16 @@
 ![V2V (Vehicle-To-Vehicle)](Figures/v2v.png)
 ## Overview
 
-This research evaluates **four machine learning algorithms** for detecting cyberattacks in IoT-enabled transportation networks. As connected vehicles, V2V communication, and smart infrastructure become critical to modern transportation, protecting these systems from cyber threats is paramount.
+This research evaluates **five machine learning algorithms** for detecting cyberattacks in IoT-enabled transportation networks. As connected vehicles, V2V communication, and smart infrastructure become critical to modern transportation, protecting these systems from cyber threats is paramount.
 
 We trained and compared:
 - **Decision Tree**
 - **Random Forest**
 - **XGBoost**
 - **K-Nearest Neighbors (KNN)**
+- **1D Convolutional Neural Network (CNN)**
 
-Using the **ACI-IoT-2023 dataset** (1.2M+ samples, 11 attack types), we achieved **>99.5% accuracy** across all models, with XGBoost demonstrating optimal performance for real-time deployment.
+Using the **ACI-IoT-2023 dataset** (1.2M+ samples, 11 attack types), we achieved **>99.5% accuracy** across all classical models, with XGBoost demonstrating optimal performance for real-time deployment. The CNN was added as a deep learning baseline, achieving 99.24% binary and 98.34% multi-class accuracy.
 
 ---
 
@@ -53,9 +54,9 @@ Connected transportation systems face increasing cyber threats:
 
 ![Adversarial Attack on Autonomous Vehicle](Figures/attackexample.png)
 
-Demonstration of semantic segmentation attack on autonomous vehicle perception. 
+Demonstration of semantic segmentation attack on autonomous vehicle perception.
 
-The diagram above illustrates a critical vulnerability in autonomous driving systems if the attack is not detected and supressed:
+The diagram above illustrates a critical vulnerability in autonomous driving systems if the attack is not detected and suppressed:
 
 1. **Normal Operation (Top)**: The vehicle's camera captures an urban scene and correctly identifies the scene through semantic segmentation. The AI classifies road surface (purple), buildings/non important features (grey), trees (yellow), vehicles (blue), sidewalks (pink), and pedestrians (red), enabling safe navigation decisions.
 
@@ -75,7 +76,7 @@ The diagram above illustrates a critical vulnerability in autonomous driving sys
 
 ### ACI-IoT-2023 Dataset
 
-- **Total Samples**: 1,231,411 network flows
+- **Total Samples**: 1,231,406 network flows
 - **Features**: 78 numerical/categorical features
 - **Attack Types**: 11 distinct classes
 - **Source**: [Army Cyber Institute (ACI)](https://www.kaggle.com/datasets/emilynack/aci-iot-network-traffic-dataset-2023)
@@ -100,70 +101,128 @@ The diagram above illustrates a critical vulnerability in autonomous driving sys
 
 ---
 
-## Methodology
+## Training Pipeline
 
-### Data Preprocessing
+All experiments were implemented in Python 3.8 using scikit-learn, XGBoost, TensorFlow/Keras, and NumPy, and executed on Google Colab with GPU acceleration. The pipeline proceeded through the following steps.
 
-```python
-# Key preprocessing steps
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
+### Step 1 — Data Ingestion and Rare Class Removal
 
-# 1. Filter rare classes (< 100 samples)
-MIN_SAMPLES_PER_CLASS = 100
-df = df[df[label_col].value_counts()[df[label_col]] >= MIN_SAMPLES_PER_CLASS]
+The raw ACI-IoT-2023 dataset was loaded from a single CSV file (~88.8 GB) containing 1,231,411 network flow records and 78 features. Attack classes with fewer than 100 samples were removed entirely, as they cannot be reliably partitioned into stratified train/validation/test subsets. ARP Spoofing fell below this threshold and was excluded. The filtered dataset retained **11 attack classes plus Benign**.
 
-# 2. Encode categorical features
-cat_cols = X.select_dtypes(include=['object', 'category']).columns
-for col in cat_cols:
-    X[col] = LabelEncoder().fit_transform(X[col].astype(str))
+### Step 2 — Feature Matrix Construction and Target Label Encoding
 
-# 3. Handle missing values and infinities
-X = X.fillna(X.mean(numeric_only=True))
-X = X.replace([np.inf, -np.inf], np.nan).fillna(0)
+The label column was isolated and two target label arrays were constructed in parallel:
 
-# 4. Stratified sampling (500K samples)
-X_sampled, _, y_sampled, _ = train_test_split(
-    X, y, train_size=500000, stratify=y, random_state=42
-)
+- **Multi-class**: All class names encoded as integers (0–10) using `LabelEncoder`
+- **Binary**: Records matching "benign", "normal", or "legitimate" assigned label `0`; all others assigned label `1`
 
-# 5. Train/Val/Test split (70/15/15)
-X_train, X_temp, y_train, y_temp = train_test_split(
-    X, y, test_size=0.3, stratify=y, random_state=42
-)
-X_val, X_test, y_val, y_test = train_test_split(
-    X_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=42
-)
+Non-predictive identifier columns (IP addresses, timestamps, flow IDs) were dropped at this stage.
 
-# 6. Feature scaling
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+### Step 3 — Categorical Feature Encoding and Data Cleaning
+
+All object/categorical columns were encoded to integers using `LabelEncoder` applied independently per column. Missing values (NaN) were imputed using the column-wise arithmetic mean. Infinite values — which arise in flow-derived statistics when denominators approach zero — were replaced with NaN and subsequently filled with zero. Final feature dimensionality: approximately **47–50 features**.
+
+### Step 4 — Stratified Downsampling to 500,000 Records
+
+Training KNN and Random Forest on 1M+ records is computationally prohibitive in a single-session environment. A stratified sample of exactly **500,000 records** was drawn using `train_test_split` with `stratify=y_encoded` and `random_state=42`. This ensures each class retains proportional representation. UDP Flood's 791 total records produced ~321 sampled records, which is the proximate cause of that class's degraded recall at test time.
+
+### Step 5 — Train / Validation / Test Split (70% / 15% / 15%)
+
+The 500,000-record sample was partitioned into three non-overlapping subsets using two sequential stratified splits:
+
+- **Training set**: 70% (~350,000 records)
+- **Validation set**: 15% (~75,000 records)
+- **Test set**: 15% (~75,000 records)
+
+The test set was isolated before any model fitting and accessed only once, at final evaluation.
+
+### Step 6 — Feature Standardization
+
+All features were standardized to zero mean and unit variance using `StandardScaler`. The scaler was **fit exclusively on the training set** and applied without refitting to the validation and test sets, preventing data leakage. Although Decision Tree and Random Forest are scale-invariant, XGBoost gradient updates, KNN distance computations, and CNN gradient flow are all sensitive to feature magnitude — uniform scaling ensures performance differences reflect algorithmic properties rather than scaling artifacts.
+
+### Step 7 — Binary Classification Training
+
+Five classifiers were trained on the binary-labeled training set:
+
+| Model | Key Hyperparameters |
+|-------|---------------------|
+| Decision Tree | `max_depth=20` |
+| Random Forest | `n_estimators=100`, `max_depth=20` |
+| XGBoost | `n_estimators=100`, `max_depth=10`, `lr=0.1`, `objective=binary:logistic` |
+| KNN | `k=5`, Euclidean distance |
+| CNN | `Adam(lr=0.001)`, `batch_size=512`, `EarlyStopping(patience=4)`, ran 13 epochs |
+
+Wall-clock training time was recorded for each model. After training, predicted class labels and predicted probabilities were generated on the held-out test set. ROC curve data were computed and stored for all five models.
+
+### Step 8 — Multi-Class Classification Training
+
+The same five classifiers were retrained on the multi-class-labeled training set with two modifications for XGBoost and CNN:
+
+- **XGBoost**: objective changed to `multi:softmax`, `num_class=11`, `eval_metric=mlogloss`
+- **CNN**: output layer changed from a single sigmoid unit to an 11-unit softmax layer; ran 9 epochs before early stopping
+
+All other hyperparameters remained identical to ensure a controlled comparison between tasks. Weighted-average precision, recall, and F1-score were computed alongside per-class metrics for all 11 attack types.
+
+### Step 9 — Evaluation and Result Serialization
+
+For each model and each task, the following metrics were computed on the held-out test set: accuracy, weighted precision, weighted recall, weighted F1-score, AUC-ROC (binary only), confusion matrix (raw cell counts), per-class classification report (multi-class), and wall-clock training time in minutes. All results were serialized to `aci_comprehensive_results_with_knn.json`.
+
+---
+
+## CNN Architecture
+
+The CNN treats each network flow's 78 features as a 1D sequence, allowing convolutional filters to capture local feature correlations that fully-connected layers would miss.
+
+```
+Input: (batch, 78, 1)
+  │
+  ├── Conv1D(64, kernel=3, padding=same) → BatchNorm → ReLU → MaxPool(2)
+  │     Output: (batch, 39, 64)
+  │
+  ├── Conv1D(128, kernel=3, padding=same) → BatchNorm → ReLU → MaxPool(2)
+  │     Output: (batch, 19, 128)
+  │
+  ├── Conv1D(64, kernel=3, padding=same) → BatchNorm → ReLU
+  │     Output: (batch, 19, 64)
+  │
+  ├── GlobalAveragePooling1D
+  │     Output: (batch, 64)
+  │
+  ├── Dense(128, relu) → Dropout(0.3)
+  ├── Dense(64, relu)  → Dropout(0.3)
+  └── Dense(1, sigmoid)            ← binary
+      Dense(11, softmax)           ← multi-class
+
+Total parameters (binary):      67,265
+Total parameters (multi-class): 67,915
+Optimizer:  Adam (lr=0.001)
+Batch size: 512
+Early stopping patience: 4 epochs  |  LR reduce patience: 2 epochs
+Binary stopped at epoch 13  |  Multi-class stopped at epoch 9
 ```
 
 ```python
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from xgboost import XGBClassifier
+# CNN input reshaping and training
+X_train_cnn = X_train_scaled.reshape(X_train_scaled.shape[0], X_train_scaled.shape[1], 1)
 
-# Binary Classification
-models = {
-    'Decision Tree': DecisionTreeClassifier(max_depth=20, random_state=42),
-    'Random Forest': RandomForestClassifier(n_estimators=100, max_depth=20, random_state=42),
-    'XGBoost': XGBClassifier(n_estimators=100, max_depth=10, learning_rate=0.1),
-    'KNN': KNeighborsClassifier(n_neighbors=5)
-}
+callbacks = [
+    EarlyStopping(monitor='val_loss', patience=4, restore_best_weights=True),
+    ReduceLROnPlateau(monitor='val_loss', patience=2, factor=0.5)
+]
 
-# Multi-Class Classification
-xgb_multi = XGBClassifier(
-    n_estimators=100,
-    max_depth=10,
-    objective='multi:softmax',
-    num_class=11,
-    eval_metric='mlogloss'
+model.fit(
+    X_train_cnn, y_train,
+    validation_data=(X_val_cnn, y_val),
+    epochs=50,
+    batch_size=512,
+    callbacks=callbacks
 )
 ```
+
+**Why 1D CNN for tabular network data?** Related network flow features (e.g., forward/backward packet stats, flag counts) tend to appear in adjacent columns, so neighboring features carry correlated information that convolution can exploit. The tradeoff is higher training time and — on this dataset — lower accuracy than tree-based methods, suggesting that the tree models' ability to learn arbitrary feature interactions is better suited to tabular intrusion detection data than fixed-kernel convolution.
+
+---
+
 ## Models Evaluated
 
 | Model | Type | Strengths | Use Case |
@@ -172,6 +231,7 @@ xgb_multi = XGBClassifier(
 | **Random Forest** | Ensemble (bagging) | Robust, handles overfitting | Balanced accuracy-speed trade-off |
 | **XGBoost** | Ensemble (boosting) | High accuracy, fast training | Production deployment |
 | **KNN** | Instance-based | No training phase, simple | Baseline comparison |
+| **CNN** | Deep learning (1D Conv) | Learns local feature interactions, GPU-accelerated | Deep learning baseline |
 
 ---
 
@@ -179,32 +239,25 @@ xgb_multi = XGBClassifier(
 
 ### Binary Classification
 
-We first evaluated models on **binary classification** (Benign vs. Attack):
+We first evaluated all five models on **binary classification** (Benign vs. Attack):
 
 ![Binary Classification Confusion Matrices](Figures/1_binary_confusion_matrices.png)
 
 #### Analysis
 
-All four models achieved **>99.5% accuracy** in distinguishing benign traffic from attacks:
+All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slightly below the classical models:
 
 - **Decision Tree**: Fewest false positives (74) → Best for minimizing false alarms
-- **XGBoost**: Near-perfect AUC (0.9999) with fastest training (0.05 min)
-- **Random Forest**: Comparable to XGBoost but slower training (0.30 min)
-- **KNN**: Most errors (325 total) due to instance-based learning limitations
+- **XGBoost**: Near-perfect AUC (0.9999) with fastest classical training (0.08 min)
+- **Random Forest**: Comparable to XGBoost but slower training (0.31 min)
+- **KNN**: Most errors among classical models
+- **CNN**: 315 false positives, 257 false negatives; highest training time (1.25 min) but strong AUC of 0.9990
 
 **Confusion Matrix Interpretation**:
 - **TN (True Negative)**: Benign traffic correctly identified as benign
 - **FP (False Positive)**: Benign traffic incorrectly flagged as attack (false alarm)
 - **FN (False Negative)**: Attack traffic missed by model (most dangerous!)
 - **TP (True Positive)**: Attack traffic correctly detected
-
-**Key Metric - False Positive Rate**:
-- Decision Tree: **0.37%** (best)
-- Random Forest: 0.58%
-- XGBoost: 0.50%
-- KNN: 0.82%
-
-Lower FPR is critical for operational systems to avoid alert fatigue.
 
 ---
 
@@ -216,14 +269,17 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 | Model | Accuracy | Precision | Recall | F1-Score | AUC-ROC | Time (min) |
 |-------|----------|-----------|--------|----------|---------|------------|
-| Decision Tree | 99.77% | 99.87% | 99.83% | **99.85%** | 0.9968 | 0.17 |
-| Random Forest | 99.72% | 99.79% | 99.83% | 99.81% | **0.9999** | 0.30 |
-| XGBoost | 99.74% | 99.82% | 99.83% | 99.82% | **0.9999** | **0.05** |
+| Decision Tree | **99.77%** | **99.87%** | 99.83% | **99.85%** | 0.9968 | 0.17 |
+| Random Forest | 99.72% | 99.79% | 99.83% | 99.81% | 0.9999 | 0.31 |
+| XGBoost | 99.74% | 99.82% | 99.83% | 99.82% | **0.9999** | **0.08** |
 | KNN | 99.57% | 99.70% | 99.71% | 99.70% | 0.9980 | 0.00* |
+| CNN | 99.24% | 99.43% | 99.53% | 99.48% | 0.9990 | 1.25 |
 
 *KNN has no training phase (lazy learner)
 
-**Winner**: **XGBoost** - Best balance of accuracy (99.82% F1), discrimination (0.9999 AUC), and speed (0.05 min).
+**Winner**: **XGBoost** — Best balance of accuracy (99.82% F1), discrimination (0.9999 AUC), and speed (0.08 min).
+
+**CNN Note**: While the CNN trails classical models on accuracy and F1, its AUC of 0.9990 ranks third overall, indicating strong probability calibration. The 1.25-minute training time reflects GPU overhead on a small model rather than a fundamental scalability issue.
 
 ---
 
@@ -235,14 +291,15 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 |-------|----------|-----------|--------|----------|------------|
 | Decision Tree | **99.56%** | **99.54%** | **99.56%** | **99.55%** | **0.12** |
 | Random Forest | 99.43% | 99.42% | 99.43% | 99.41% | 0.31 |
-| XGBoost | 99.53% | 99.53% | 99.53% | 99.52% | 0.53 |
+| XGBoost | 99.52% | 99.52% | 99.52% | 99.51% | 0.54 |
 | KNN | 99.24% | 99.24% | 99.24% | 99.23% | 0.00* |
+| CNN | 98.34% | 98.40% | 98.34% | 98.33% | 0.89 |
 
-**Surprise Finding**: Decision Tree outperformed ensemble methods in multi-class classification!
+**Surprise Finding**: Decision Tree outperformed all models — including ensembles and the CNN — in multi-class classification.
 
-**Why?**: Multi-class problems with **distinct class boundaries** favor simpler models that can create clear decision splits. Ensemble voting can sometimes blur boundaries between similar attack types (e.g., Port Scan vs. Vulnerability Scan).
+**Why?** Multi-class problems with **distinct class boundaries** favor simpler models that create clean decision splits. Ensemble voting can blur boundaries between similar attack types (e.g., Port Scan vs. Vulnerability Scan), and the CNN's convolutional inductive bias is less effective when discriminating features are not spatially local in the feature vector.
 
-![Multi-Classn Confusion Matrices](Figures/4_multiclass_confusion_matrices.png)
+![Multi-Class Confusion Matrices](Figures/4_multiclass_confusion_matrices.png)
 
 ---
 
@@ -252,11 +309,7 @@ Lower FPR is critical for operational systems to avoid alert fatigue.
 
 ![ROC Curves Full](Figures/2_roc_curves_full.png)
 
-**Interpretation**: All curves hug the top-left corner, indicating **near-perfect discrimination** between benign and malicious traffic. The models achieve:
-- **~100% True Positive Rate** (detecting attacks)
-- **~0% False Positive Rate** (minimal false alarms)
-
-The curves are nearly overlapping because performance is so high (AUC > 0.996 for all models).
+**Interpretation**: All curves hug the top-left corner, indicating **near-perfect discrimination** between benign and malicious traffic. All five models achieve AUC > 0.996.
 
 ---
 
@@ -264,15 +317,12 @@ The curves are nearly overlapping because performance is so high (AUC > 0.996 fo
 
 ![ROC Curves Zoomed](Figures/3_roc_curves_zoomed.png)
 
-**Key Insights from Zoomed View**:
+**Key Insights from Zoomed View** (0–0.1 FPR region):
 
-Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
-
-1. **Random Forest & XGBoost** (green/orange): Nearly identical, reaching 100% TPR at <0.01 FPR
-2. **Decision Tree** (blue): Slightly slower climb, reaches 99% TPR around 0.005 FPR
-3. **KNN** (purple): Slowest, needs ~0.015 FPR to achieve 99% TPR
-
-**Practical Meaning**: Random Forest and XGBoost can detect **99.9% of attacks while triggering false alarms on only 0.5% of benign traffic**.
+1. **Random Forest & XGBoost**: Nearly identical, reaching 100% TPR at <0.01 FPR
+2. **CNN**: Strong probability calibration, reaches 99% TPR around 0.008 FPR
+3. **Decision Tree**: Reaches 99% TPR around 0.005 FPR
+4. **KNN**: Needs ~0.015 FPR to achieve 99% TPR
 
 ---
 
@@ -282,76 +332,46 @@ Zooming to the **critical operating region** (0-0.1 FPR) reveals differences:
 
 **AUC-ROC Rankings**:
 
-1. **XGBoost**: 0.999884 (best discrimination)
-2. **Random Forest**: 0.999859 (essentially tied)
-3. **KNN**: 0.997978
-4. **Decision Tree**: 0.996803
+1. **XGBoost**: 0.9999
+2. **Random Forest**: 0.9999
+3. **CNN**: 0.9990
+4. **KNN**: 0.9980
+5. **Decision Tree**: 0.9968
 
-**Important Note**: XGBoost has the highest AUC but not the highest F1-score. Why?
-
-- **AUC** measures discrimination ability across **all possible thresholds**
-- **F1-score** measures performance at a **specific threshold** (0.5)
-- Decision Tree performs better at the standard threshold, but XGBoost has superior probability calibration overall
-
-**Recommendation**: Use XGBoost for production because better probability estimates enable **adaptive threshold tuning** based on operational requirements (e.g., prioritize recall in safety-critical scenarios).
+**Recommendation**: Use XGBoost for production — superior probability estimates enable **adaptive threshold tuning** based on operational requirements (e.g., prioritize recall in safety-critical scenarios).
 
 ---
 
-### Multi-Class Classification
+### Per-Class Results
 
-#### Confusion Matrix (11 Attack Types)
-
-![Multi-Class Confusion Matrix](Figures/4_multiclass_confusion_matrices.png)
-
-**How to Read This Matrix**:
-- **Rows** = Actual attack type
-- **Columns** = Predicted attack type
-- **Diagonal (green boxes)** = Correct predictions
-- **Off-diagonal** = Misclassifications
-
-#### Per-Class Results
-
-** Perfect/Near-Perfect Detection** (>99.5% accuracy):
-- **Dictionary Attack**: 388/388 (100%)
-- **Ping Sweep**: 4,381/4,381 (100%)
-- **ICMP Flood**: 13,717/13,718 (99.99%)
-- **Benign**: 20,013/20,056 (99.79%)
-- **SYN Flood**: 842/844 (99.76%)
-- **Slowloris**: 1,133/1,135 (99.82%)
-- **OS Scan**: 2,284/2,286 (99.91%)
-- **DNS Flood**: 2,841/2,859 (99.37%)
-
-** Moderate Performance**:
-- **Port Scan**: 26,754/26,877 (99.54%)
-  - 88 misclassified as Vulnerability Scan (similar scanning behavior)
-- **Vulnerability Scan**: 2,300/2,408 (95.52%)
-  - 98 misclassified as Port Scan (expected confusion)
-
-** Poor Performance**:
-- **UDP Flood**: 14/48 (29.17%) 
-  - **Only 48 test samples** (0.06% of dataset)
-  - 34 misclassified as Benign
-  - **Root cause**: Severe class imbalance prevented learning
-
----
-
-### Per-Class Performance Breakdown
+#### Per-Class Performance Breakdown
 
 ![Per-Class Performance](Figures/7_per_class_performance.png)
 
-**Critical Finding - UDP Flood Failure**:
+**Per-Class Metrics (Best Multi-Class Model — Decision Tree)**:
 
-This chart clearly shows that **UDP Flood** is the only attack type with significantly degraded performance:
-- **Precision**: 0.61 (61%)
-- **Recall**: 0.29 (29%) 
-- **F1-Score**: 0.39 (39%)
+| Attack Type | Precision | Recall | F1-Score | Support |
+|-------------|-----------|--------|----------|---------|
+| Benign | 99.55% | 99.79% | 99.67% | 20,056 |
+| DNS Flood | 99.86% | 99.37% | 99.61% | 2,859 |
+| Dictionary Attack | 98.73% | 100.00% | 99.36% | 388 |
+| ICMP Flood | 99.99% | 99.99% | 99.99% | 13,718 |
+| OS Scan | 99.83% | 99.91% | 99.87% | 2,286 |
+| Ping Sweep | 99.98% | 100.00% | 99.99% | 4,381 |
+| Port Scan | 99.55% | 99.54% | 99.55% | 26,877 |
+| SYN Flood | 100.00% | 99.76% | 99.88% | 844 |
+| Slowloris | 99.74% | 99.82% | 99.78% | 1,135 |
+| **UDP Flood** | **60.87%** | **29.17%** | **39.44%** | **48** |
+| Vulnerability Scan | 96.03% | 95.51% | 95.77% | 2,408 |
 
-**Why This Happened**:
-1. UDP Flood had only **791 samples** in the entire dataset (vs. 441,282 for Port Scan)
-2. After sampling, only **48 test samples** remained
-3. Model never learned distinguishing features
+**Critical Finding — UDP Flood Failure**:
 
-All other attack types show **balanced precision/recall** (bars at ~1.0), indicating reliable detection without bias.
+UDP Flood is the only attack type with significantly degraded performance across all models:
+- **Recall: 29.17%** — the model misses ~70% of UDP Flood attacks
+- **Root cause**: Only 791 total samples in the dataset → only 48 test samples after stratified splitting
+- This is a **data problem, not a model problem** — the CNN, KNN, and tree models all fail similarly on this class
+
+All other attack types show balanced precision/recall above 95%.
 
 ---
 
@@ -359,7 +379,7 @@ All other attack types show **balanced precision/recall** (bars at ~1.0), indica
 
 ![Feature Importance](Figures/8_feature_importance.png)
 
-**Top 10 Most Important Features**:
+**Top 10 Most Important Features** (Random Forest importances; used as proxy for CNN, which does not expose feature importances natively):
 
 | Rank | Feature | Importance | Category |
 |------|---------|------------|----------|
@@ -374,96 +394,59 @@ All other attack types show **balanced precision/recall** (bars at ~1.0), indica
 | 9 | Dst IP | 1.63% | Network Addressing |
 | 10 | Dst Port | 1.11% | Network Addressing |
 
-#### Key Insights
+**Top 3 features account for 79.65% of decisions**:
 
-**Top 3 Features Account for 79.65% of Decisions**:
+1. **RST Flag Count (28.3%)**: High in DDoS/port scanning; consistent in benign traffic
+2. **Forward Header Length (27.6%)**: Varies by attack type — SYN Floods have small headers; data exfiltration has large headers
+3. **Source Port (23.7%)**: Attackers use predictable or random high ports; benign traffic uses known service ports
 
-1. **RST Flag Count (28.3%)**:
-   - RST (Reset) flags indicate connection termination
-   - **High in attacks**: DDoS, port scanning, connection floods
-   - **Low in benign**: Normal connection teardown patterns
-
-2. **Forward Header Length (27.6%)**:
-   - Header size varies between attack types
-   - **SYN Floods**: Small headers (no payload)
-   - **Data Exfiltration**: Large headers with options
-   - **Normal Traffic**: Consistent header sizes
-
-3. **Source Port (23.7%)**:
-   - Attackers often use predictable ports
-   - **Port 80/443**: Web-based attacks
-   - **Port 53**: DNS floods
-   - **Random high ports**: Scanning/botnet traffic
-
-**Transport Layer Dominance**:
-
-Notice that **protocol flags, ports, and packet structures** (Layer 3-4 features) dominate. This is expected for network intrusion detection and aligns with how attacks manifest in network traffic.
-
-**Implications for Transportation**:
-- V2V/V2X systems can monitor these features in **real-time**
-- Lightweight detection: Only need to inspect **packet headers**, not payloads
-- Hardware acceleration possible (packet header parsing is fast)
+**Implication**: Only packet headers need to be inspected — deep packet inspection (DPI) is not required, enabling **lightweight real-time deployment** on edge devices and V2X infrastructure.
 
 ---
 
 ## Key Findings
 
-### 1. All Models Are Deployment-Ready
+### 1. Classical Models Outperform Deep Learning for Tabular NIDS
 
-**All four models achieved >99.5% accuracy**, demonstrating that IoT anomaly detection is a **solved problem** for balanced datasets with sufficient samples.
+The CNN (98.34% multi-class F1) underperforms all classical models (99.23%–99.55%). For structured, tabular network flow data with strong feature-level signals, tree-based methods are more appropriate than convolutional architectures. The CNN's inductive bias for local correlations does not translate well to hand-engineered flow statistics.
 
 ### 2. XGBoost is Optimal for Production
 
-**Recommended for deployment**:
-- **Best AUC-ROC**: 0.9999 (near-perfect discrimination)
-- **Fastest training**: 0.05 minutes (vs. 0.30 for Random Forest)
-- **Near-optimal F1**: 99.82% (only 0.03% behind Decision Tree)
+- **Best AUC-ROC**: 0.9999 (binary)
+- **Fast training**: 0.08 min (binary), 0.54 min (multi-class)
+- **Near-optimal F1**: 99.82% binary, 99.51% multi-class
 - **Robust**: Ensemble method resistant to overfitting
 
 ### 3. Decision Tree Excels in Multi-Class
 
-**Surprising result**: Simple Decision Tree outperformed ensembles in multi-class classification (99.56% vs 99.53% for XGBoost).
-
-**Explanation**: Multi-class problems with **distinct attack signatures** benefit from interpretable decision boundaries rather than complex ensemble voting.
-
-**Use case**: Deploy Decision Tree for **attack type identification** (after binary detection by XGBoost).
+Simple Decision Tree outperformed all models in multi-class classification (99.56% vs 98.34% CNN, 99.52% XGBoost). Multi-class problems with distinct attack signatures benefit from clear decision boundaries rather than complex ensemble voting or convolutional feature extraction.
 
 ### 4. Class Imbalance is a Critical Challenge
 
-**UDP Flood detection failed (29% recall)** due to:
-- Only 0.06% representation in dataset
-- Insufficient samples for pattern learning
+**UDP Flood detection failed (29% recall)** across all models due to only 0.06% dataset representation. It is a data problem.
 
-**Solution for operational systems**:
 ```python
 from imblearn.over_sampling import SMOTE
 
-# Synthetic oversampling for rare classes
 smote = SMOTE(sampling_strategy='minority', random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 ```
+
 ### 5. Protocol-Level Features Are Sufficient
 
-**79.6% of classification decisions** rely on only 3 features:
-- RST Flag Count
-- Forward Header Length  
-- Source Port
-
-**Implication**: Lightweight deployment possible without deep packet inspection (DPI).
+79.6% of classification decisions rely on only 3 features. Lightweight deployment is possible without deep packet inspection.
 
 ### 6. Training Efficiency Enables Edge Deployment
 
-| Model | Training Time | Suitable For |
-|-------|---------------|--------------|
-| XGBoost | 0.05 min | Real-time retraining on edge devices |
-| Decision Tree | 0.12 min | Embedded systems (vehicles, RSUs) |
-| Random Forest | 0.31 min | Cloud-based batch processing |
-| KNN | 0.00 min* | Baseline/reference systems |
+| Model | Binary Time | Multi-Class Time | Suitable For |
+|-------|-------------|-----------------|--------------|
+| XGBoost | 0.08 min | 0.54 min | Real-time retraining on edge devices |
+| Decision Tree | 0.17 min | 0.12 min | Embedded systems (vehicles, RSUs) |
+| Random Forest | 0.31 min | 0.31 min | Cloud-based batch processing |
+| KNN | ~0.00 min* | ~0.00 min* | Baseline/reference systems |
+| CNN | 1.25 min | 0.89 min | GPU-accelerated environments |
 
-**Sub-minute training** enables:
-- **Adaptive learning** as new attack patterns emerge
-- **On-device training** for privacy-preserving federated learning
-- **Rapid deployment** in emergency response scenarios
+*KNN has no training phase (lazy learner)
 
 ---
 
@@ -485,14 +468,17 @@ cd IoTResearch
 pip install -r requirements.txt
 ```
 
+---
+
 ## Project Structure
+
 ```
 IoTResearch/
 ├── data/
-│   └── ACI-IoT-2023.csv              # Raw dataset (not included - download separately via link in repo)
+│   └── ACI-IoT-2023.csv                          # Raw dataset (download separately via link in repo)
 ├── Results/
-│   ├── aci_comprehensive_results_with_knn.json  # Full results
-│   └── ac_comprehensive_results.json # Results without KNN
+│   ├── aci_comprehensive_results_with_knn.json   # Full results (all 5 models incl. CNN)
+│   └── aci_comprehensive_results.json            # Results without KNN
 ├── ColabRun/
 │   ├── ColabKaggleGDriveLoad.py
 │   ├── ColabKaggleLink.py
@@ -503,16 +489,17 @@ IoTResearch/
 │   ├── 1_binary_confusion_matrices.png
 │   ├── 2_roc_curves_full.png
 │   ├── 3_roc_curves_zoomed.png
-│   ├── 4_multiclass_confusion_matrix.png
+│   ├── 4_multiclass_confusion_matrices.png
 │   ├── 5_binary_model_comparison.png
 │   ├── 6_multiclass_model_comparison.png
 │   ├── 7_per_class_performance.png
 │   ├── 8_feature_importance.png
 │   └── 9_auc_comparison.png
-├── requirements.txt                  # Python dependencies
-├── README.md                         # This file
-└── LICENSE                           # MIT License
+├── requirements.txt                              # Python dependencies
+├── README.md                                     # This file
+└── LICENSE                                       # MIT License
 ```
+
 ## Disclaimer
 
 This research was done utilizing Google Colab, so local downloads were not tested. Therefore, some directory structures that are shown may not work exactly as pictured. Please play around with the structure to make it work for you!
