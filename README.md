@@ -374,6 +374,31 @@ UDP Flood is the only attack type with significantly degraded performance across
 All other attack types show balanced precision/recall above 95%.
 
 ---
+### CNN Training Curves
+
+![CNN Training Curves](Figures/10_cnn_training_curves.png)
+
+The training curve plot shows loss and accuracy over epochs for both binary and multi-class tasks, with training (blue) and validation (red) lines plotted together. The orange shaded region on the loss panels shows the absolute train/validation gap — a visual overfit indicator.
+
+Key observations:
+- **Binary** stopped at epoch 13; validation loss tracks training loss closely with minimal gap, indicating the model generalized well and did not overfit.
+- **Multi-class** stopped at epoch 9; slightly faster convergence, again with a tight train/validation gap.
+- Both runs used `ReduceLROnPlateau` (patience=2), which is visible as sudden drops in the loss curve where the learning rate was halved.
+
+---
+
+### Model Radar Chart
+
+![Model Radar Chart](Figures/11_model_radar_chart.png)
+
+The radar chart plots all five models simultaneously across Accuracy, Precision, Recall, F1-Score, and AUC-ROC for both binary (left) and multi-class (right) tasks. Because all models score above 98%, the y-axis is zoomed to 98–100% to make the differences visible.
+
+Key observations:
+- Classical models (Decision Tree, Random Forest, XGBoost) cluster tightly near the outer edge in both panels.
+- CNN sits slightly inward, most visibly on the multi-class panel where its 98.34% accuracy separates it from the 99%+ cluster.
+- KNN traces a similar shape to the classical models in binary, but falls slightly behind in multi-class.
+
+---
 
 ### Feature Importance Analysis
 
