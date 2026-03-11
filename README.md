@@ -173,26 +173,9 @@ For each model and each task, the following metrics were computed on the held-ou
 
 The CNN treats each network flow's 78 features as a 1D sequence, allowing convolutional filters to capture local feature correlations that fully-connected layers would miss.
 
-```
-Input: (batch, 78, 1)
-  │
-  ├── Conv1D(64, kernel=3, padding=same) → BatchNorm → ReLU → MaxPool(2)
-  │     Output: (batch, 39, 64)
-  │
-  ├── Conv1D(128, kernel=3, padding=same) → BatchNorm → ReLU → MaxPool(2)
-  │     Output: (batch, 19, 128)
-  │
-  ├── Conv1D(64, kernel=3, padding=same) → BatchNorm → ReLU
-  │     Output: (batch, 19, 64)
-  │
-  ├── GlobalAveragePooling1D
-  │     Output: (batch, 64)
-  │
-  ├── Dense(128, relu) → Dropout(0.3)
-  ├── Dense(64, relu)  → Dropout(0.3)
-  └── Dense(1, sigmoid)            ← binary
-      Dense(11, softmax)           ← multi-class
+![CNN Architecture](Figures/CNNArch.png)
 
+```
 Total parameters (binary):      67,265
 Total parameters (multi-class): 67,915
 Optimizer:  Adam (lr=0.001)
