@@ -24,6 +24,8 @@
 
 ---
 ![V2V (Vehicle-To-Vehicle)](Figures/v2v.png)
+> **Figure:** An illustration of Vehicle-to-Vehicle (V2V) communication in a connected transportation environment. Vehicles exchange real-time network traffic data with one another and with roadside infrastructure. This communication layer is the primary attack surface this research aims to protect — malicious traffic injected into these channels can compromise navigation, safety systems, and fleet management.
+
 ## Overview
 
 This research evaluates **five machine learning algorithms** for detecting cyberattacks in IoT-enabled transportation networks. As connected vehicles, V2V communication, and smart infrastructure become critical to modern transportation, protecting these systems from cyber threats is paramount.
@@ -53,6 +55,7 @@ Connected transportation systems face increasing cyber threats:
 ### Real-World Attack Example: Adversarial Perception Manipulation
 
 ![Adversarial Attack on Autonomous Vehicle](Figures/attackexample.png)
+> **Figure:** A side-by-side comparison showing the effect of an adversarial network attack on an autonomous vehicle's semantic segmentation model. The top panel shows normal operation — the AI correctly identifies road surfaces, pedestrians, vehicles, and surrounding objects. The bottom panel shows the same scene after an attacker injects adversarial noise through a compromised V2X channel: the AI misclassifies a pedestrian as drivable road surface, meaning the vehicle would accelerate toward them. This example motivates the need for real-time network intrusion detection before such payloads reach the perception pipeline.
 
 Demonstration of semantic segmentation attack on autonomous vehicle perception.
 
@@ -174,6 +177,7 @@ For each model and each task, the following metrics were computed on the held-ou
 The CNN treats each network flow's 78 features as a 1D sequence, allowing convolutional filters to capture local feature correlations that fully-connected layers would miss.
 
 ![CNN Architecture](Figures/CNNArch.png)
+> **Figure:** A diagram of the 1D CNN architecture used in this study. The network ingests a single flow record as a sequence of shape (N, 78, 1) and passes it through three Conv1D blocks (with BatchNormalization, ReLU activation, and MaxPooling), followed by GlobalAveragePooling and two fully-connected Dense layers with dropout regularization. The architecture forks at the output into a sigmoid unit for binary classification and an 11-way softmax for multi-class classification.
 
 ```
 Total parameters (binary):      67,265
@@ -225,6 +229,7 @@ model.fit(
 We first evaluated all five models on **binary classification** (Benign vs. Attack):
 
 ![Binary Classification Confusion Matrices](Figures/1_binary_confusion_matricesNEW.png)
+> **Figure:** Confusion matrices for all five models on the binary classification task (Benign vs. Attack). Each matrix shows the counts of True Negatives (TN — benign correctly identified), False Positives (FP — benign flagged as attack), False Negatives (FN — attacks missed), and True Positives (TP — attacks correctly detected). Darker diagonal cells indicate stronger performance. The Decision Tree produces the fewest false positives (74), while the CNN generates the most errors overall (315 FP, 257 FN), reflecting its slightly lower accuracy on this task.
 
 #### Analysis
 
@@ -247,6 +252,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 ### Model Comparison Tables
 
 ![Binary Model Comparison](Figures/5_binary_model_comparison.png)
+> **Figure:** A summary bar chart comparing all five models across Accuracy, Precision, Recall, F1-Score, AUC-ROC, and Training Time for the binary classification task. The y-axis is scaled to highlight the narrow performance band between models. XGBoost and Decision Tree lead on most metrics, while the CNN trails slightly on accuracy and F1 but maintains a competitive AUC of 0.9990.
 
 #### Binary Classification Performance
 
@@ -267,6 +273,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 ---
 
 ![Multi-Class Model Comparison](Figures/6_multiclass_model_comparison.png)
+> **Figure:** A summary bar chart comparing all five models across Accuracy, Precision, Recall, and F1-Score for the multi-class classification task (11 attack categories). The Decision Tree leads all models despite being the simplest architecture, outperforming both ensemble methods and the CNN. The CNN shows the largest gap from the classical cluster, particularly on accuracy and F1-Score, underscoring the limitations of convolutional feature extraction on hand-engineered tabular data.
 
 #### Multi-Class Classification Performance
 
@@ -283,6 +290,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 **Why?** Multi-class problems with **distinct class boundaries** favor simpler models that create clean decision splits. Ensemble voting can blur boundaries between similar attack types (e.g., Port Scan vs. Vulnerability Scan), and the CNN's convolutional inductive bias is less effective when discriminating features are not spatially local in the feature vector.
 
 ![Multi-Class Confusion Matrices](Figures/4_multiclass_confusion_matricesNEW.png)
+> **Figure:** Confusion matrices for all five models on the 11-class attack classification task. Each row represents the true attack type and each column the predicted label; diagonal cells show correct classifications. The color scale reflects sample count, making high-frequency classes (Port Scan, Benign, ICMP Flood) visually dominant. The UDP Flood row stands out across all models with near-zero recall, reflecting the severe class imbalance (only 48 test samples). The CNN matrix shows more off-diagonal spread than the tree-based models, consistent with its lower overall F1-Score.
 
 ---
 
@@ -291,6 +299,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 #### Full ROC Curves
 
 ![ROC Curves Full](Figures/2_roc_curves_full.png)
+> **Figure:** Receiver Operating Characteristic (ROC) curves for all five models on the binary classification task, plotted across the full False Positive Rate (FPR) range of 0 to 1. Each curve shows the trade-off between True Positive Rate (TPR/Recall) and False Positive Rate at every classification threshold. All five models hug the top-left corner tightly, indicating near-perfect discrimination between benign and attack traffic. The diagonal dashed line represents a random classifier (AUC = 0.5) included as a reference baseline.
 
 **Interpretation**: All curves hug the top-left corner, indicating **near-perfect discrimination** between benign and malicious traffic. All five models achieve AUC > 0.996.
 
@@ -299,6 +308,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 #### Zoomed ROC Curves (Critical Region)
 
 ![ROC Curves Zoomed](Figures/3_roc_curves_zoomed.png)
+> **Figure:** A zoomed view of the ROC curves restricted to the 0–0.1 False Positive Rate region — the operationally critical zone where a deployed IDS must minimize false alarms while maximizing attack detection. Differences between models that are invisible on the full ROC plot become apparent here. Random Forest and XGBoost reach 100% TPR at under 0.01 FPR; Decision Tree achieves 99% TPR at approximately 0.005 FPR; the CNN reaches 99% TPR around 0.008 FPR; and KNN requires the highest FPR (~0.015) to match that detection rate.
 
 **Key Insights from Zoomed View** (0–0.1 FPR region):
 
@@ -312,6 +322,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 #### AUC Score Comparison
 
 ![AUC Comparison](Figures/9_auc_comparison.png)
+> **Figure:** A bar chart ranking all five models by their binary classification AUC-ROC score. The y-axis is scaled to the 0.996–1.000 range to make the small but meaningful differences between models visible. XGBoost and Random Forest tie at 0.9999, followed by the CNN (0.9990), KNN (0.9980), and Decision Tree (0.9968). A higher AUC indicates better ability to separate benign from malicious traffic across all possible classification thresholds, which is particularly important in deployments where the decision threshold must be tuned to operational requirements.
 
 **AUC-ROC Rankings**:
 
@@ -330,6 +341,7 @@ All classical models achieved **>99.5% accuracy**. The CNN achieved 99.24%, slig
 #### Per-Class Performance Breakdown
 
 ![Per-Class Performance](Figures/7_per_class_performance.png)
+> **Figure:** A grouped bar chart showing per-class Precision, Recall, and F1-Score for the best-performing multi-class model (Decision Tree) across all 11 attack categories. Most classes achieve scores above 99% on all three metrics. The UDP Flood bar is a clear visual outlier — with only 48 test samples drawn from a dataset with 791 total UDP Flood records, all five models fail to learn a reliable decision boundary for this class, resulting in 29% recall and a 39% F1-Score. All other attack types are detected with high confidence.
 
 **Per-Class Metrics (Best Multi-Class Model — Decision Tree)**:
 
@@ -360,6 +372,7 @@ All other attack types show balanced precision/recall above 95%.
 ### CNN Training Curves
 
 ![CNN Training Curves](Figures/10_cnn_training_curves.png)
+> **Figure:** Training and validation loss and accuracy curves over epochs for the CNN, shown separately for the binary (left) and multi-class (right) tasks. Blue lines represent training metrics and red lines represent validation metrics. The orange shaded region on the loss panels visualizes the absolute gap between training and validation loss, serving as an overfit indicator — a widening gap would suggest the model is memorizing training data. Both tasks converge with a tight gap, indicating good generalization. Sudden drops in the loss curves mark epochs where `ReduceLROnPlateau` halved the learning rate. The binary task ran for 13 epochs and the multi-class task for 9 before early stopping triggered.
 
 The training curve plot shows loss and accuracy over epochs for both binary and multi-class tasks, with training (blue) and validation (red) lines plotted together. The orange shaded region on the loss panels shows the absolute train/validation gap — a visual overfit indicator.
 
@@ -373,6 +386,7 @@ Key observations:
 ### Model Radar Chart
 
 ![Model Radar Chart](Figures/11_model_radar_chart.png)
+> **Figure:** Radar (spider) charts comparing all five models simultaneously across five metrics — Accuracy, Precision, Recall, F1-Score, and AUC-ROC — for binary classification (left panel) and multi-class classification (right panel). The radial axis is zoomed to the 98–100% range to make the differences between high-performing models visible. Each model is represented by a distinct colored polygon; a larger, more outward polygon indicates better overall performance. Classical models (Decision Tree, Random Forest, XGBoost) cluster near the outer edge in both panels, while the CNN sits visibly inward on the multi-class panel, most noticeably on the Accuracy and F1-Score axes.
 
 The radar chart plots all five models simultaneously across Accuracy, Precision, Recall, F1-Score, and AUC-ROC for both binary (left) and multi-class (right) tasks. Because all models score above 98%, the y-axis is zoomed to 98–100% to make the differences visible.
 
@@ -386,6 +400,7 @@ Key observations:
 ### Feature Importance Analysis
 
 ![Feature Importance](Figures/8_feature_importance.png)
+> **Figure:** A horizontal bar chart showing the top 10 most important features as ranked by Random Forest's Gini impurity-based feature importances. Each bar represents a feature's relative contribution to classification decisions across all trees in the forest, expressed as a percentage of total importance. The three dominant features — RST Flag Count (28.34%), Forward Header Length (27.62%), and Source Port (23.69%) — together account for nearly 80% of all decisions. Color coding groups features by category (protocol flags, packet structure, network addressing, timing). This concentration of importance in packet-header-level features supports the case for lightweight, header-only inspection in edge deployments.
 
 **Top 10 Most Important Features** (Random Forest importances; used as proxy for CNN, which does not expose feature importances natively):
 
